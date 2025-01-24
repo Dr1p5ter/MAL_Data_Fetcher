@@ -4,7 +4,7 @@ API_client_secret_len : int = 64
 
 class KeyFileNotFoundError(Exception) :
     """
-    KeyFileNotFound Key file was not found in parent directory
+    KeyFileNotFound : Key file was not found in parent directory
     """
     def __init__(self, message : str) :
         self.message = message
@@ -15,7 +15,7 @@ class KeyFileNotFoundError(Exception) :
 
 class InvalidClientIdError(Exception) :
     """
-    InvalidClientIdError Length of client id was not valid
+    InvalidClientIdError : Length of client id was not valid
     """
     def __init__(self, invalid_id : str, message : str) :
         self.invalid_id = invalid_id
@@ -27,7 +27,7 @@ class InvalidClientIdError(Exception) :
     
 class InvalidClientSecretError(Exception) :
     """
-    InvalidClientSecretError Length of client secret was not valid
+    InvalidClientSecretError : Length of client secret was not valid
     """
     def __init__(self, invalid_secret : str, message : str) :
         self.invalid_secret = invalid_secret
@@ -77,4 +77,3 @@ def grabAPIInfo() -> tuple[str,str] :
         raise KeyFileNotFoundError("Key file was not found in parent directory")
     except Exception as UnhandledException:
         raise UnhandledException
-    
