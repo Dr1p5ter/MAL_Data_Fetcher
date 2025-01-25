@@ -3,7 +3,6 @@ from json import dumps
 from key import *
 from sys import exit
 from traceback import format_exc
-from query import *
 
 if __name__ == '__main__' :
     # probe the user for API credentials if there have been none provided before runtime
