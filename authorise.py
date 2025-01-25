@@ -1,5 +1,5 @@
 from json import dump, load
-from requests import post, Response
+from requests import post, Response, get, HTTPError
 from secrets import token_urlsafe
 
 MAL_oauth2_link = 'https://myanimelist.net/v1/oauth2'
@@ -19,6 +19,17 @@ class TokenFileNotFoundError(Exception) :
 class StaleTokenError(Exception) :
     """
     StaleTokenError : Token has expired and needs refreshed
+    """
+    def __init__(self, message : str) :
+        self.message = message
+        super().__init__(self.message)
+    
+    def __str__(self) :
+        return f'{self.message}'
+
+class TokenValidationError(Exception) :
+    """
+    TokenValidationError : Token validation flagged for mismatched API id/secret combo
     """
     def __init__(self, message : str) :
         self.message = message
@@ -131,6 +142,19 @@ def getAPIToken(client_id : str, client_secret : str) -> dict :
     return token
 
 def refreshAPIToken(client_id : str, client_secret : str) -> dict :
+    """
+    refreshAPIToken : refresh API token upon a 401 error code
+
+    Arguments:
+        client_id -- API client id
+        client_secret -- API client secret
+
+    Raises:
+        UnhandledException: An exception occured that was not forseen.
+
+    Returns:
+        current new token that was wrote to disk
+    """
     # try to get the old token
     try :
         old_token = loadTokenData()
@@ -175,3 +199,30 @@ def refreshAPIToken(client_id : str, client_secret : str) -> dict :
 
     # return the token contents
     return token
+
+def validateToken(access_token : str) -> None :
+    """
+    validateToken : Verifies the usability of the current token stored
+
+    Arguments:
+        access_token -- access token present in the current token.json file
+
+    Raises:
+        TokenValidationError: Unauthorized use of current token or other 400
+        code was thrown upon response call.
+        UnhandledException: An exception occured that was not forseen.
+    """
+    # attempt to perform a simple GET response using the current token and API credentials
+    try :
+        url : str = 'https://api.myanimelist.net/v2/users/@me'
+        response : Response = get(url, 
+                    headers = {'Authorization': f'Bearer {access_token}'})
+        response.raise_for_status()
+        response.close()
+    except HTTPError :
+        if response.status_code == 401 :
+            raise TokenValidationError("Unauthorized use of current stored token")
+        else :
+            raise TokenValidationError("Other 400 code was raised upon validation")
+    except Exception as UnhandledException :
+        raise UnhandledException

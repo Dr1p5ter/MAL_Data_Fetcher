@@ -1,3 +1,5 @@
+from os.path import exists
+
 API_key_path : str = 'key.env'
 API_client_id_len : int = 32
 API_client_secret_len : int = 64
@@ -77,3 +79,28 @@ def grabAPIInfo() -> tuple[str,str] :
         raise KeyFileNotFoundError("Key file was not found in parent directory")
     except Exception as UnhandledException:
         raise UnhandledException
+
+def makeKeyFile() -> None :
+    """
+    makeKeyFile : verifies that the key file is made and prompts the user to
+    input data before any other functionality that requires such information
+    begins.
+
+    Raises:
+        UnhandledException: An exception occured that was not forseen.
+    """
+    # check if key file not present in parent directory
+    if not exists(API_key_path) :
+        # grab the API information to continue
+        print("It appears that the key.env file was not present.\n")
+        client_id : str = str(input("Please enter the MAL API client Id : ")).strip()
+        client_secret : str = str(input("Please enter the MAL API client secret : ")).strip()
+
+        # generate the file so it is present in the directory
+        print("Writing the key file into the parent directory...")
+        try :
+            with open(API_key_path, 'w') as file :
+                file.write(f'{client_id}\n{client_secret}')
+        except Exception as UnhandledException :
+            raise UnhandledException
+        print("key.env was successfully written to the parent directory!\n")
