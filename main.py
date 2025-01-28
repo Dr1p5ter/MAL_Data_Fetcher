@@ -11,9 +11,9 @@ if __name__ == '__main__' :
 
     # grab API information
     try :
-        data_pair : tuple[str, str] = grabAPIInfo()
-        client_id = data_pair[0]
-        client_secret = data_pair[1]
+        data_pair : dict = grabAPIInfo()
+        client_id = data_pair['_id']
+        client_secret = data_pair['_secret']
     except Exception as UnhandledException :
         print(format_exc())
         exit(-1)
