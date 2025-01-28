@@ -1,6 +1,7 @@
-from authorise import *
+from fetcher_api.authorise import *
+from fetcher_api.key import *
+
 from json import dumps
-from key import *
 from sys import exit
 from traceback import format_exc
 

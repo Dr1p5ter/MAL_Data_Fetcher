@@ -1,8 +1,7 @@
+from os import makedirs
 from os.path import exists
 
-API_key_path : str = 'key.env'
-API_client_id_len : int = 32
-API_client_secret_len : int = 64
+from fetcher_api.constants import *
 
 class KeyFileNotFoundError(Exception) :
     """
@@ -62,7 +61,8 @@ def grabAPIInfo() -> tuple[str,str] :
     # try to read the key file
     try :
         # open the file
-        with open(API_key_path, 'r') as file :
+        makedirs(metadata_path, exist_ok=True)
+        with open(key_filepath, 'r') as file :
             # grab the client id from the first line
             API_client_id : str = str(file.readline()).strip()
             if len(API_client_id) != API_client_id_len :
@@ -90,7 +90,7 @@ def makeKeyFile() -> None :
         UnhandledException: An exception occured that was not forseen.
     """
     # check if key file not present in parent directory
-    if not exists(API_key_path) :
+    if not exists(key_filepath) :
         # grab the API information to continue
         print("It appears that the key.env file was not present.\n")
         client_id : str = str(input("Please enter the MAL API client Id : ")).strip()
@@ -99,7 +99,8 @@ def makeKeyFile() -> None :
         # generate the file so it is present in the directory
         print("Writing the key file into the parent directory...")
         try :
-            with open(API_key_path, 'w') as file :
+            makedirs(metadata_path, exist_ok=True)
+            with open(key_filepath, 'w') as file :
                 file.write(f'{client_id}\n{client_secret}')
         except Exception as UnhandledException :
             raise UnhandledException

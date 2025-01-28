@@ -1,9 +1,10 @@
 from json import dump, load
+from os import makedirs
+from os.path import exists
 from requests import post, Response, get, HTTPError
 from secrets import token_urlsafe
 
-MAL_oauth2_link = 'https://myanimelist.net/v1/oauth2'
-token_filepath = 'token.json'
+from fetcher_api.constants import *
 
 class TokenFileNotFoundError(Exception) :
     """
@@ -87,6 +88,7 @@ def loadTokenData() -> dict :
         The token stored in the file.
     """
     try :
+        makedirs(metadata_path, exist_ok=True)
         with open(token_filepath, 'r') as file :
             token : dict = load(file)
         return token
@@ -132,6 +134,7 @@ def getAPIToken(client_id : str, client_secret : str) -> dict :
     # write the token to the directory
     print("Writing the token to disk...")
     try :
+        makedirs(metadata_path, exist_ok=True)
         with open(token_filepath, 'w') as file :
             dump(token, file, indent = 4)
     except Exception as UnhandledException :
@@ -191,6 +194,7 @@ def refreshAPIToken(client_id : str, client_secret : str) -> dict :
     # update the token to the directory
     print("Updating the token to disk...")
     try :
+        makedirs(metadata_path, exist_ok=True)
         with open(token_filepath, 'w') as file :
             dump(token, file, indent = 4)
     except Exception as UnhandledException :
