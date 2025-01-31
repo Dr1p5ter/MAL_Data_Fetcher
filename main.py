@@ -1,9 +1,12 @@
-from fetcher_api.authorise import *
-from fetcher_api.key import *
+# native imports
 
 from json import dumps
 from sys import exit
 from traceback import format_exc
+
+# local imports
+from fetcher_api.authorise import *
+from fetcher_api.key import *
 
 if __name__ == '__main__' :
     # probe the user for API credentials if there have been none provided before runtime
@@ -29,7 +32,7 @@ if __name__ == '__main__' :
         exit(-1)
 
     try :
-        url : str = 'https://api.myanimelist.net/v2/anime/22429?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics'
+        url : str = 'https://api.myanimelist.net/v2/anime?offset=50&q=one&limit=50'
         response : Response = get(url, headers={'Authorization' : f'Bearer {token['access_token']}'})
         response.raise_for_status()
         data = response.json()
