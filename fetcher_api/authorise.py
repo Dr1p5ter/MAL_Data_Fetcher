@@ -1,8 +1,12 @@
+# native imports
+
 from json import dump, load
 from os import makedirs
-from os.path import exists
 from requests import post, Response, get, HTTPError
 from secrets import token_urlsafe
+from termcolor import colored
+
+# local imports
 
 from fetcher_api.constants import *
 
@@ -11,18 +15,7 @@ class TokenFileNotFoundError(Exception) :
     TokenFileNotFoundError : Token file was not found
     """
     def __init__(self, message : str) :
-        self.message = message
-        super().__init__(self.message)
-    
-    def __str__(self) :
-        return f'{self.message}'
-
-class StaleTokenError(Exception) :
-    """
-    StaleTokenError : Token has expired and needs refreshed
-    """
-    def __init__(self, message : str) :
-        self.message = message
+        self.message = colored(message, WARNING)
         super().__init__(self.message)
     
     def __str__(self) :
@@ -33,7 +26,7 @@ class TokenValidationError(Exception) :
     TokenValidationError : Token validation flagged for mismatched API id/secret combo
     """
     def __init__(self, message : str) :
-        self.message = message
+        self.message = colored(message, DANGER)
         super().__init__(self.message)
     
     def __str__(self) :
@@ -65,7 +58,7 @@ def getAuthorizationCode(client_id : str, code_challenge : str) -> str :
         The authorization code for the API
     """
     # handmake the url
-    url : str = f'{MAL_oauth2_link}/authorize?response_type=code&client_id={client_id}&code_challenge={code_challenge}'
+    url : str = f'{MAL_OAUTH2_ENDPOINT}/authorize?response_type=code&client_id={client_id}&code_challenge={code_challenge}'
     
     # print information to terminal for authorization
     print("To authorise this application please click the following link: ")
@@ -88,8 +81,8 @@ def loadTokenData() -> dict :
         The token stored in the file.
     """
     try :
-        makedirs(metadata_path, exist_ok=True)
-        with open(token_filepath, 'r') as file :
+        makedirs(METADATA_PATH, exist_ok=True)
+        with open(TOKEN_PATH, 'r') as file :
             token : dict = load(file)
         return token
     except FileNotFoundError :
@@ -112,7 +105,7 @@ def getAPIToken(client_id : str, client_secret : str) -> dict :
         Dictionary object containing token data
     """
     # establish data and the url to grab the token
-    url : str = str(f'{MAL_oauth2_link}/token')
+    url : str = str(f'{MAL_OAUTH2_ENDPOINT}/token')
     verifier : str = getCodeVerifier()
     data : dict = {
         'client_id' : client_id,
@@ -134,12 +127,12 @@ def getAPIToken(client_id : str, client_secret : str) -> dict :
     # write the token to the directory
     print("Writing the token to disk...")
     try :
-        makedirs(metadata_path, exist_ok=True)
-        with open(token_filepath, 'w') as file :
+        makedirs(METADATA_PATH, exist_ok=True)
+        with open(TOKEN_PATH, 'w') as file :
             dump(token, file, indent = 4)
     except Exception as UnhandledException :
         raise UnhandledException
-    print(f"Token successfully wrote to disk! Token stored in {token_filepath}")
+    print(f"Token successfully wrote to disk! Token stored in {TOKEN_PATH}")
 
     # return the token contents
     return token
@@ -174,7 +167,7 @@ def refreshAPIToken(client_id : str, client_secret : str) -> dict :
         raise UnhandledException
     
     # establish data and the url to grab the token
-    url : str = str(f'{MAL_oauth2_link}/token')
+    url : str = str(f'{MAL_OAUTH2_ENDPOINT}/token')
     data : dict = {
         'client_id' : client_id,
         'client_secret' : client_secret,
@@ -194,12 +187,12 @@ def refreshAPIToken(client_id : str, client_secret : str) -> dict :
     # update the token to the directory
     print("Updating the token to disk...")
     try :
-        makedirs(metadata_path, exist_ok=True)
-        with open(token_filepath, 'w') as file :
+        makedirs(METADATA_PATH, exist_ok=True)
+        with open(TOKEN_PATH, 'w') as file :
             dump(token, file, indent = 4)
     except Exception as UnhandledException :
         raise UnhandledException
-    print(f"Token successfully updated to disk! New token stored in {token_filepath}")
+    print(f"Token successfully updated to disk! New token stored in {TOKEN_PATH}")
 
     # return the token contents
     return token

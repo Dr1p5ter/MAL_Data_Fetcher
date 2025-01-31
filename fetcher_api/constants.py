@@ -1,8 +1,33 @@
-MAL_oauth2_link : str= 'https://myanimelist.net/v1/oauth2'
+# Networking constants
 
-metadata_path : str = '_api/'
-token_filepath : str = metadata_path + 'token.json'
-key_filepath : str = metadata_path + 'key.json'
+MAL_BASE : str = 'https://myanimelist.net'
+MAL_OAUTH2_ENDPOINT : str = MAL_BASE + '/v1/oauth2'
+MAL_ANIME_ENDPOINT : str = MAL_BASE + '/v2/anime/'
+MAL_MANGA_ENDPOINT : str = MAL_BASE + '/v2/manga/'
 
-API_client_id_len : int = 32
-API_client_secret_len : int = 64
+# Organization constants
+
+METADATA_PATH : str = '_api/'
+TOKEN_PATH : str = METADATA_PATH + 'token.json'
+KEY_PATH : str = METADATA_PATH + 'key.json'
+
+# Exception printing color constants
+
+DANGER = 'red'
+WARNING = 'yellow'
+NOTE = 'green'
+
+# Key constants
+
+API_CLIENT_ID_LEN : int = 32
+API_CLIENT_SECRET_LEN : int = 64
+
+# MAL_classes constants
+
+ANIMELIST_FIELDS = [
+    'id', 'title', 'main_picture', 'alternative_titles', 'start_date',
+    'end_date', 'synopsis', 'mean', 'rank', 'popularity', 'num_list_users',
+    'num_scoring_users', 'nsfw', 'genres', 'created_at', 'updated_at',
+    'media_type', 'status', 'start_season', 'broadcast', 'source',
+    'average_episode_duration', 'rating', 'studios'
+]
