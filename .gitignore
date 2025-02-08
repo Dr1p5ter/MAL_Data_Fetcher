@@ -1,3 +1,8 @@
 __pycache__
 fetcher_api/__pycache__
+test/__pycache__
+venv
+
 _api
+runmain.sh
+runtest.sh
