@@ -24,16 +24,15 @@ if __name__ == '__main__' :
     except :
         pprint(format_exc())
         exit(-1)
-    # pprint(token)
 
     # example query
     animelist = AnimeList(token.getToken()['access_token'],
-                          'Neon',
+                          'one',
                           limit=1,
-                          optional_fields=ANIMELISTNODE_OPTIONAL_FIELDS)
+                          optional_attributes=ANIMELISTNODE_ATTRIBUTES)
 
-    for node in animelist.data :
-        pprint(node)
-    # pprint(animelist.paging)
+    animenodelist : list[AnimeListNode]= animelist.data
+    for node in animenodelist :
+        pprint(node.get_attribute_dict())
 
     exit(1)

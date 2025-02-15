@@ -12,7 +12,9 @@ from fetcher_api.constants import *
 
 class APIKeyInvalidArgumentError(Exception) :
     """
-    APIKeyInvalidArgumentError : Arguments used to initialize APIKey object are invalid or empty
+    APIKeyInvalidArgumentError (exception)
+    
+    Arguments used to initialize APIKey object are invalid or empty.
     """
     def __init__(self, message : str, child_error : Exception) :
         self.message = colored(message, DANGER)
@@ -24,7 +26,9 @@ class APIKeyInvalidArgumentError(Exception) :
     
 class KeyFileNotFoundError(Exception) :
     """
-    KeyFileNotFound : Key file was not found in parent directory
+    KeyFileNotFoundError (exception)
+
+    Key file was not found in parent directory.
     """
     def __init__(self, message : str) :
         self.message = colored(message, DANGER)
@@ -35,7 +39,9 @@ class KeyFileNotFoundError(Exception) :
 
 class InvalidClientIdError(Exception) :
     """
-    InvalidClientIdError : Length of client id was not valid
+    InvalidClientIdError (exception)
+    
+    Length of client id was not valid.
     """
     def __init__(self, invalid_id : str, message : str) :
         self.invalid_id = invalid_id
@@ -47,7 +53,9 @@ class InvalidClientIdError(Exception) :
     
 class InvalidClientSecretError(Exception) :
     """
-    InvalidClientSecretError : Length of client secret was not valid
+    InvalidClientSecretError (exception)
+    
+    Length of client secret was not valid.
     """
     def __init__(self, invalid_secret : str, message : str) :
         self.invalid_secret = invalid_secret
@@ -60,16 +68,21 @@ class InvalidClientSecretError(Exception) :
 @dataclass(init=False)
 class APIKey :
     """
-     A container for API key information and should be called to make API
-     communication easier to initialize. There is no need to pass any arguments
-     into the class. Each value will be initialized through helper methods.
+    (class object)
 
-    Raises :
-        InvalidClientIdError : Client id was not valid
-        InvalidClientSecretError : Client secret was not valid
+    A container for API key information and should be called to make API
+    communication easier to initialize. There is no need to pass any arguments
+    into the class. Each value will be initialized through helper methods.
 
-    Methods :
-        getKey() : Returns a tuple containing the stored values
+    Warning : DO NOT SHARE API KEYS!
+    
+    Raises
+    ------
+    APIKeyInvalidArgumentError
+        This exception is raised in the instance that the id or secret is of an
+        invalid length or was not present correctly in the document. The API
+        key will need to be reset upon runtime if this is thrown or the file
+        needs to be modified to fit the API credentials.
     """
     
     _id : str
@@ -94,33 +107,45 @@ class APIKey :
     
     def getKey(self) -> tuple[str, str] :
         """
-        getKey : Helper method for returning class data for the key
+        getKey (public method)
 
-        Returns:
-            A tuple containing strings for the id and secret respectfully
+        Helper for returning the key.
+
+        Returns
+        -------
+        tuple[str, str]
+            A tuple containing strings for the id and secret respectfully.
         """
         return (self._id, self._secret)
     
     def _grabAPIInfo(self) -> dict :
         """
-        _grabAPIInfo : This function will read the API information that was stored
-        in the key file in the parent directory. This function will always
-        return a tuple unless otherwise an exception occurs within the read
-        operation.
+        _grabAPIInfo (private method)
 
-        Warning : DO NOT SHARE API KEYS!
+        This function will read the API information that was stored in the key
+        file in the parent directory. This function will always return a tuple
+        unless otherwise an exception occurs within the read operation.
+        
+        Returns
+        -------
+        dict
+            A dictionary object containing the id and secret for the API.  
 
-        Raises :
-            InvalidClientIdError : The client id was of an invalid length.
-            InvalidClientSecretError : The client secret was of an invalid length.
-            KeyFileNotFoundError : The key file was not found in the parent
-            directory.
+        Attributes
+        ----------
+        _id
+            The API id.
+        _secret
+            The API secret.
 
-        Returns :
-            A dictionary object containing the id and secret for the API.
-            dict fields :
-                _id : The API id
-                _secret : The API secret
+        Raises
+        ------
+        InvalidClientIdError
+            The client id was of an invalid length.
+        InvalidClientSecretError
+            The client secret was of an invalid length.
+        KeyFileNotFoundError
+            The key file was not found in the parentdirectory.
         """
         # try to read the key file
         try :
@@ -146,9 +171,10 @@ class APIKey :
 
     def _makeKeyFile(self) -> None :
         """
-        _makeKeyFile : verifies that the key file is made and prompts the user to
-        input data before any other functionality that requires such information
-        begins.
+        _makeKeyFile (private method)
+
+        Verifies that the key file is made and prompts the user to input data
+        before any other functionality that requires such information begins.
         """
         # check if key file not present in parent directory
         if not exists(KEY_PATH) :

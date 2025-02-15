@@ -24,10 +24,10 @@ API_CLIENT_ID_LEN : int = 32
 API_CLIENT_SECRET_LEN : int = 64
 
 # MAL_classes constants
-ANIMELISTNODE_DEFAULT_FIELDS = [
+ANIMELISTNODE_DEFAULT_ATTRIBUTES = [
     'id', 'title', 'main_picture'
 ]
-ANIMELISTNODE_OPTIONAL_FIELDS = [
+ANIMELISTNODE_OPTIONAL_ATTRIBUTES = [
     'alternative_titles', 'start_date', 'end_date', 'synopsis', 'mean', 'rank',
     'popularity', 'num_list_users', 'num_scoring_users', 'nsfw', 'genres',
     'created_at', 'updated_at', 'media_type', 'status', 'num_episodes', 
@@ -35,4 +35,4 @@ ANIMELISTNODE_OPTIONAL_FIELDS = [
     'rating', 'studios'
 ]
 
-ANIMELISTNODE_FIELDS = ANIMELISTNODE_DEFAULT_FIELDS + ANIMELISTNODE_OPTIONAL_FIELDS
+ANIMELISTNODE_ATTRIBUTES = ANIMELISTNODE_DEFAULT_ATTRIBUTES + ANIMELISTNODE_OPTIONAL_ATTRIBUTES

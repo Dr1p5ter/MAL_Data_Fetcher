@@ -13,7 +13,9 @@ from fetcher_api.constants import *
 
 class TokenFileNotFoundError(Exception) :
     """
-    TokenFileNotFoundError : Token file was not found
+    TokenFileNotFoundError (exception)
+    
+    Token file was not found.
     """
     def __init__(self, message : str) :
         self.message = colored(message, WARNING)
@@ -24,7 +26,9 @@ class TokenFileNotFoundError(Exception) :
 
 class TokenValidationError(Exception) :
     """
-    TokenValidationError : Token validation flagged for mismatched API id/secret combo
+    TokenValidationError (exception)
+    
+    Token validation flagged for mismatched API id/secret combo.
     """
     def __init__(self, message : str, code : int) :
         self.message = colored(message, DANGER)
@@ -37,17 +41,19 @@ class TokenValidationError(Exception) :
 @dataclass(init=False)
 class APIToken :
     """
-     A container for the API token information and should be called to make API
-     communication easier to initialize. It is required to pass in the API key
-     to begin.
+    (class object)
 
-    Raises:
-        HTTPError : Bad http response occured when sending a post request to
-            the MAL API gateway
-        TokenValidationError : 400-404 error code was raised
-
-    Methods :
-        getToken() : Returns a dictionary containing the stored values
+    A container for the API token information and should be called to make API
+    communication easier to initialize. It is required to pass in the API key
+    to begin.
+    
+    Raises
+    ------
+    HTTPError
+        Bad http response occured when sending a post request to the MAL API
+        gateway.
+    TokenValidationError
+        400-404 error code was raised.
     """
 
     _token : dict[str, str]
@@ -78,29 +84,54 @@ class APIToken :
         
     def getToken(self) -> dict :
         """
-        getToken : Helper method for returning class data for the token
+        getToken (public method)
 
-        Returns:
-            A dictionary containing token data :
-                "token_type" -- Type of token as a string
-                "expires_in" -- Amount of time till the token expires from
-                creation as an int
-                "access_token" -- Access token as a string
-                "refresh_token" -- Refresh token as a string
-}
+        Helper for returning the token.
+
+        Returns
+        -------
+        dict
+            A dictionary containing token data.
+
+        Attributes
+        ----------
+        token_type
+            Type of token as a string.
+        expires_in
+            Amount of time till the token expires from creation as an int.
+        access_token
+            Access token as a string.
+        refresh_token
+            Refresh token as a string.        
         """
         return self._token
 
     def _loadTokenData(self) -> dict :
         """
-        _loadTokenData : Grab the token data from token.json
+        _loadTokenData (private method)
 
-        Raises:
-            TokenFileNotFoundError : When the original token file is missing or
-            needs generated
+        Grab the token data from token.json file.
 
-        Returns :
-            The token stored in the file
+        Returns
+        -------
+        dict
+            The token stored in the file.
+
+        Attributes
+        ----------
+        token_type
+            Type of token as a string.
+        expires_in
+            Amount of time till the token expires from creation as an int.
+        access_token
+            Access token as a string.
+        refresh_token
+            Refresh token as a string.        
+
+        Raises
+        ------
+        TokenFileNotFoundError
+            When the original token file is missing or needs generated.
         """
         try :
             makedirs(METADATA_PATH, exist_ok=True)
@@ -112,18 +143,38 @@ class APIToken :
 
     def _getAPIToken(self, client_id : str, client_secret : str) -> dict :
         """
-        _getAPIToken : Generate a token used by the API service
+        _getAPIToken (private method)
 
-        Arguments :
-            client_id -- API client id
-            client_secret -- API client secret
+        Generate a token used by the API service.
 
-        Raises :
-            HTTPError : Bad http response occured when sending a post request to
-            the MAL API gateway
+        Parameters
+        ----------
+        client_id : str
+            API client id.
+        client_secret : str
+            API client secret.
 
-        Returns:
-            Dictionary object containing token data
+        Returns
+        -------
+        dict
+            Dictionary object containing token data.
+        
+        Attributes
+        ----------
+        token_type
+            Type of token as a string.
+        expires_in
+            Amount of time till the token expires from creation as an int.
+        access_token
+            Access token as a string.
+        refresh_token
+            Refresh token as a string.
+
+        Raises
+        ------
+        HTTPError
+            Bad http response occured when sending a post request to the MAL
+            API gateway.
         """
         # get verifier code
         verifier : str = token_urlsafe(100)[:128]
@@ -173,18 +224,40 @@ class APIToken :
 
     def _refreshAPIToken(self, client_id : str, client_secret : str, refresh_token : str) -> dict :
         """
-        _refreshAPIToken : refresh API token upon a 401 error code
+        _refreshAPIToken (private method)
 
-        Arguments :
-            client_id -- API client id
-            client_secret -- API client secret
+        Refresh API token upon a 401 error code.
 
-        Raises :
-            HTTPError : Bad http response occured when sending a post request to
-            the MAL API gateway
-            
-        Returns:
-            Current new token that was wrote to disk
+        Parameters
+        ----------
+        client_id : str
+            API client id.
+        client_secret : str
+            API client secret.
+        refresh_token : str
+            API refresh token.
+
+        Returns
+        -------
+        dict
+            Current new token that was wrote to disk.
+
+        Attributes
+        ----------
+        token_type
+            Type of token as a string.
+        expires_in
+            Amount of time till the token expires from creation as an int.
+        access_token
+            Access token as a string.
+        refresh_token
+            Refresh token as a string.
+
+        Raises
+        ------
+        HTTPError
+            Bad http response occured when sending a post request to the MAL
+            API gateway.
         """
         # establish data and the url to grab the token
         url : str = str(f'{MAL_OAUTH2_ENDPOINT}/token')
@@ -219,13 +292,19 @@ class APIToken :
 
     def _validateToken(self, access_token : str) -> None :
         """
-        _validateToken : Verifies the usability of the current token stored
+        _validateToken (private method)
 
-        Arguments :
-            access_token -- access token present in the current token.json file
+        Verifies the usability of the current token stored.
 
-        Raises :
-            TokenValidationError : 400-404 error code was raised
+        Parameters
+        ----------
+        access_token : str
+            API access token.
+
+        Raises
+        ------
+        TokenValidationError
+            400-404 error code was raised.
         """
         # attempt to perform a simple GET response using the current token and API credentials
         try :
