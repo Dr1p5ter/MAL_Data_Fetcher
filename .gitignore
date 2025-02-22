@@ -1,8 +1,11 @@
+# pycache will not be saved
 __pycache__
-fetcher_api/__pycache__
-test/__pycache__
+
+# Virtual Enviornment Folder
 venv
 
+# API key/token Info Folder
 _api
-runmain.sh
-runtest.sh
+
+# Node.js for React
+node_modules
