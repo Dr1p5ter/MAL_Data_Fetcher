@@ -1,0 +1,29 @@
+|>  == relation with id connected to other relation
+*   == property necesssary
+*** == key
+
+usrdata
+    *** userid : id
+    * username : str
+    * password : str
+    * name : str | null
+    * nickname : str | null
+    * DoB : date | datetime | null
+    * bio : str | null
+    * country : str | null
+    * state/province : str | null
+    * usercreated : datetime
+    * userinfochanged : datetime | null
+    * passwordexpires : datetime
+    * lastlogin : datetime
+    * passwordrecoveryquestion : str
+    * passwordrecoveryanswer : str
+
+These will be for caching and data storage + my personal use :D
+
+animedata
+    *** animeid : id
+    *   TBD
+
+mangadata
+    *** mangaid : id
