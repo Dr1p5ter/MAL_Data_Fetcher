@@ -8,15 +8,18 @@ from .config import app
 
 # scope imports
 
-from fetcher_api.key import APIKey
-from fetcher_api.MAL_classes import AnimeList
-from fetcher_api.token import APIToken
+from fetcher_api.MAL_classes import *
 
 @app.route("/search", methods=['GET'])
 def get_search() :
-    test_list = AnimeList(
-        APIToken(APIKey().getKey()).getToken()['access_token'],
-        "one piece",
-        limit=50,
+    test_details : AnimeDetails = AnimeDetails(
+        40748,
+        attributes=ANIMEDETAILSNODE_OPTIONAL_ATTRIBUTES[-4:] + ANIME_DEFAULT_ATTRIBUTES
     )
-    return jsonify(test_list.raw_data)
+    return jsonify(test_details.raw_node)
+
+@app.route("/testanimelistnode", methods=['GET'])
+def get_animelistnode_test() :
+    test_list : AnimeList = AnimeList('jujutsu kaisen')
+    test_node : AnimeListNode = test_list.data[0]
+    return jsonify(test_node.get_attribute_dict())

@@ -1,11 +1,9 @@
-import { useState } from 'react'
-import './App.css'
+import { useEffect, useState } from "react"
+import AnimeCard from "./AnimeCard"
 
 function App() {
   return (
-    <>
-      <h1>Hello World</h1>
-    </>
+    <AnimeCard />
   )
 }
 
