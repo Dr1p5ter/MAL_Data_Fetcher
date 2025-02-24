@@ -1,35 +1,186 @@
 # native imports
 
 from dataclasses import dataclass
-from datetime import datetime
-from json import loads
 from requests import get, Response, HTTPError
-from termcolor import colored
 from typing import Any
-from traceback import format_exc
 from urllib.parse import quote
 
 # local imports
 
 from fetcher_api.constants import *
+from fetcher_api.key import APIKey
+from fetcher_api.MAL_exceptions import *
 
-class AnimeListNodeAttributeError(Exception) :
+# dataclasses
+
+@dataclass(init=False)
+class AnimeDetails :
     """
-    AnimeListNodeAttributeError _summary_
+    (class object)
 
-    The attribute being accessed was not queried for this object.
-    
+    A container for data represented by each Anime entry in the MAL database.
+
     Parameters
     ----------
-    attr : str
-        attribute not within the queried list
+    anime_id : int
+        This is the unique identifier for MAL when assigning anime series in
+        their database.
+    attributes : list[str], optional
+        The attributes to be included among the query resultant for each
+        AnimeDetails object. If the attribute is not present in this array,
+        the default value for that attribute will be what is specified in the
+        description.
+        By default [].
+
+    Attributes
+    ----------
+    id : int
+        Unique identifier for an anime.
+    title : str
+        The anime name.
+    main_picture : dict
+        A dictionary containing links to provided assets on the MAL
+        website.
+    alternative_titles : dict
+        A dictionary containing strings or a list of strings of different
+        names the anime goes by.
+    start_date : str
+        The datetime the anime was aired.
+    end_date : str
+        The datetime the anime was finished airing.
+    synopsis : str
+        A synopsis of the anime.
+    mean : float
+        The mean score of the anime.
+    rank : int
+        The rank of the anime.
+    popularity : int
+        The popularity of the anime.
+    num_list_users : int
+        The number of users who have this work in their list.
+    num_scoring_users : int
+        The number of users who have this work scored.
+    nsfw : str
+        The rating of the content in the anime.
+    genres : list
+        An array of dictionaries containing anime genres and their id values
+        associated with the type of genre.
+    created_at : str
+        The date the anime entry was created.
+    updated_at : str
+        The date the anime entry was last updated.
+    media_type : str
+        A string representing the type of media this anime is.
+    status : str
+        Airing status.
+    num_episodes : int
+        The total number of episodes of this series.
+    start_season : dict
+        A dictionary containing the year and season the anime began airing.
+    broadcast : dict
+        Broadcast date.
+    source : str
+        Original work.
+    average_episode_duration : int
+        Average length of episode in seconds.
+    rating : str
+        The rating of the anime.
+    studios : list
+        An array of dictionary objects containing anime studios with their
+        corisponding ids.
+    pictures : list
+        A dictionary containing image URIs for this anime.
+    background : str
+        A section of text covering anime production information/awards.
+    related_anime : list
+        Anime series that show relationship between original art and format.
+    related_manga : list
+        Manga series that show relationship between original art and format.
+    recommendations : list
+        A summary of recommended anime for those who like this anime.
+    statistics : dict
+        A rundown of user activity about this anime.
     """
-    def __init__(self, attr : str) :
-        self.message = colored(f"{attr} was not in attributes_queried upon calling getattr", WARNING)
-        super().__init__(self.message)
+    # parameters for initialization    
+    anime_id                 : int
+    attributes               : list[str]
+
+    # node attributes
+    raw_node                 : dict[str, Any]
+
+    def __init__(self,
+                 anime_id : str,
+                 attributes : list[str] = []
+                 ) :
+        
+        if anime_id <= 0 : 
+            raise InvalidAnimeDetailsAnimeIdError(anime_id)
+        object.__setattr__(self, 'anime_id', anime_id)
+
+        fin_attributes = ANIME_DEFAULT_ATTRIBUTES[:]
+        for attribute in attributes :
+            try :
+                if attribute not in ANIMEDETAILSNODE_OPTIONAL_ATTRIBUTES or attribute in ANIME_DEFAULT_ATTRIBUTES:
+                    raise InvalidAnimeDetailsAttributeError(attribute)
+                else :
+                    fin_attributes.append(attribute)
+            except InvalidAnimeListAttributeError as error :
+                print(error)
+            finally :
+                continue
+        object.__setattr__(self, "attributes", fin_attributes)
+        
+        self.__post_init__()
+
+    def __post_init__(self) :
+        try :
+            # setup and submit the query through MAL
+            url : str = ''.join([
+                MAL_ANIME_ENDPOINT,
+                f'/{self.anime_id}'
+                '?',
+                f'fields={','.join(self.attributes)}' if len(self.attributes) > 0 else ''
+            ])
+            header = {'X-MAL-CLIENT-ID' : f'{APIKey().getKey()[0]}'}
+            response : Response = get(url, headers=header)
+            object.__setattr__(self, 'raw_node', dict(response.json()))
+            response.raise_for_status()
+        except HTTPError as QueryException:
+            raise QueryException
+        
+        # only add the attributes aquired from the query
+        for attribute in self.attributes :
+            object.__setattr__(self, attribute, self.raw_node.get(attribute, None))
+
+    def __getattribute__(self, attribute : str) :
+        # go around the native attributes first
+        x_list = [
+            'raw_node', 'anime_id', 'attributes', '__class__', '__dict__',
+            '__post_init__', 'get_attribute_dict', '__getattribute__'
+        ]
+        if attribute in x_list :
+            return super().__getattribute__(attribute)
+        
+        # make a check if the attribute was queried
+        if attribute not in self.attributes :
+            raise AnimeDetailsGetAttributeError(attribute)
+        return super().__getattribute__(attribute)
     
-    def __str__(self) :
-        return f'{self.message}'
+    def get_attribute_dict(self) -> dict :
+        """
+        get_attribute_dict (public method)
+
+        Helper for returning only attributes that were queried.
+
+        Returns
+        -------
+        dict
+            A dictionary object containing only attributes grabbed from query.
+        """
+        attr_dict = dict()
+        for attr in self.attributes :
+            attr_dict[attr] = self.__getattribute__(attr)
+        return attr_dict
 
 @dataclass(init=False)
 class AnimeListNode :
@@ -40,11 +191,11 @@ class AnimeListNode :
 
     Parameters
     ----------
-    node_raw : dict[str, Any]
+    raw_node : dict[str, Any]
         A dictionary containing raw data for each node in the data attribute for a
         query result.
 
-    attributes_queried : list[str]
+    attributes : list[str]
         A list of strings that corispond to valid attributes for AnimeList queries.
 
     Attributes
@@ -103,36 +254,42 @@ class AnimeListNode :
     studios : list
         An array of dictionary objects containing anime studios with their
         corisponding ids.
+    
+    Raises
+    ------
+    AnimeListNodeAttributeError
+        There was an attribute being accessed that was not within the object
+        attributes.
     """
     # parameters for initialization
-    node_raw : dict[str, Any]
-    attributes_queried : list[str]
+    raw_node : dict[str, Any]
+    attributes : list[str]
 
     def __init__(self,
-                 node_raw : dict[str, Any],
-                 attributes_queried : list[str]) :
-        object.__setattr__(self, 'node_raw', node_raw)
-        object.__setattr__(self, 'attributes_queried', attributes_queried)
+                 raw_node : dict[str, Any],
+                 attributes : list[str]) :
+        object.__setattr__(self, 'raw_node', raw_node)
+        object.__setattr__(self, 'attributes', attributes)
 
         self.__post_init__()
     
     def __post_init__(self) :
         # only add the attributes aquired from the query
-        for attribute in self.attributes_queried :
-            object.__setattr__(self, attribute, self.node_raw.get(attribute, None))
+        for attribute in self.attributes :
+            object.__setattr__(self, attribute, self.raw_node.get(attribute, None))
 
     def __getattribute__(self, attribute : str) :
         # go around the native attributes first
         x_list = [
-            'node_raw', 'attributes_queried', '__class__', '__dict__',
+            'raw_node', 'attributes', '__class__', '__dict__',
             '__post_init__', 'get_attribute_dict', '__getattribute__'
         ]
         if attribute in x_list :
             return super().__getattribute__(attribute)
         
         # make a check if the attribute was queried
-        if attribute not in self.attributes_queried :
-            raise AnimeListNodeAttributeError(attribute)
+        if attribute not in self.attributes :
+            raise AnimeListNodeGetAttributeError(attribute)
         return super().__getattribute__(attribute)
     def get_attribute_dict(self) -> dict :
         """
@@ -146,63 +303,9 @@ class AnimeListNode :
             A dictionary object containing only attributes grabbed from query.
         """
         attr_dict = dict()
-        for attr in self.attributes_queried :
+        for attr in self.attributes :
             attr_dict[attr] = self.__getattribute__(attr)
         return attr_dict
-
-class InvalidAnimeListQError(Exception) :
-    """
-    InvalidAnimeListQError (exception)
-    
-    The query string is empty or invalid. String must be of at least length of
-    one byte.
-    """
-    def __init__(self) :
-        self.message = colored("The query string must be of at least length 1 and valid for search", WARNING)
-        super().__init__(self.message)
-    
-    def __str__(self) :
-        return f'{self.message}'
-
-class InvalidAnimeListLimitRangeError(Exception) :
-    """
-    InvalidAnimeListLimitRangeError
-    
-    The limit exceeded range expected for the query. Range is between 1-100.
-    """
-    def __init__(self) :
-        self.message = colored("The limit range must be between 1-100", WARNING)
-        super().__init__(self.message)
-    
-    def __str__(self) :
-        return f'{self.message}'
-
-class InvalidAnimeListOffsetRangeError(Exception) :
-    """
-    InvalidAnimeListOffsetRangeError
-
-    The offset was not within the threshold range. Value must not be negative.
-    """
-    def __init__(self) :
-        self.message = colored("The offset range must not be negative", WARNING)
-        super().__init__(self.message)
-    
-    def __str__(self) :
-        return f'{self.message}'
-
-class InvalidAnimeListAttributeError(Exception) :
-    """
-    InvalidAnimeListAttributeError
-    
-    The attribute(s) present within the query was not a valid attribute or was a
-    duplicate of a default attribute.
-    """
-    def __init__(self, attribute_in_question : str) :
-        self.message = colored(f"\'{attribute_in_question}\' attribute is not a valid attribute or already included", WARNING)
-        super().__init__(self.message)
-    
-    def __str__(self) :
-        return f'{self.message}'
 
 @dataclass(init=False, frozen=True)
 class AnimeList :
@@ -213,8 +316,6 @@ class AnimeList :
 
     Parameters
     ----------
-    access_token : str
-        The API access token.
     q : str
         The query string for searching through the database.
     limit : int, optional
@@ -223,7 +324,7 @@ class AnimeList :
     offset : int, optional
         The amount of nodes skipped in the query resultant.
         By default 0.
-    optional_attributes : list[str], optional
+    attributes : list[str], optional
         The attributes to be included among the query resultant for each
         AnimeListNode object. If the attribute is not present in this array,
         the default value for that attribute will be what is specified in the
@@ -250,7 +351,7 @@ class AnimeList :
         The offset not >= 0.
     InvalidAnimeListAttributeError
         The attribute was not included in available selections for the query.
-    QueryException
+    HTTPError
         HTTPError extension for cases where raised response code not being 200.
     """
     # parameters for initialization    
@@ -265,11 +366,10 @@ class AnimeList :
     paging                   : dict[str, str]
 
     def __init__(self,
-                 access_token : str,
                  q : str,
                  limit : int = 100,
                  offset : int = 0,
-                 optional_attributes : list[str] = []
+                 attributes : list[str] = []
                  ) :
         
         if len(q) <= 0 :
@@ -282,7 +382,6 @@ class AnimeList :
             object.__setattr__(self, "limit", limit)
         except InvalidAnimeListLimitRangeError as error :
             print(error)
-            print(colored('limit variable will be set back to default value (100)', NOTE))
             object.__setattr__(self, "limit", 100)
 
         try :
@@ -291,23 +390,24 @@ class AnimeList :
             object.__setattr__(self, "offset", offset)
         except InvalidAnimeListOffsetRangeError as error :
             print(error)
-            print(colored('offset variable will be set back to default value (0)', NOTE))
             object.__setattr__(self, "offset", 0)
 
-        fin_attributes = ANIMELISTNODE_DEFAULT_ATTRIBUTES[:]
-        for attribute in optional_attributes :
+        fin_attributes = ANIME_DEFAULT_ATTRIBUTES[:]
+        for attribute in attributes :
             try :
-                if attribute not in ANIMELISTNODE_OPTIONAL_ATTRIBUTES or attribute in ANIMELISTNODE_DEFAULT_ATTRIBUTES:
+                if attribute not in ANIMELISTNODE_OPTIONAL_ATTRIBUTES or attribute in ANIME_DEFAULT_ATTRIBUTES:
                     raise InvalidAnimeListAttributeError(attribute)
                 else :
                     fin_attributes.append(attribute)
             except InvalidAnimeListAttributeError as error :
                 print(error)
+            finally :
+                continue
         object.__setattr__(self, "attributes", fin_attributes)
         
-        self.__post_init__(access_token)
+        self.__post_init__()
 
-    def __post_init__(self, access_token : str) :
+    def __post_init__(self) :
         try :
             # setup and submit the query through MAL
             url : str = ''.join([
@@ -318,7 +418,7 @@ class AnimeList :
                 f'&offset={self.offset}',
                 f'&fields={','.join(self.attributes)}' if len(self.attributes) > 0 else ''
             ])
-            header = {'Authorization' : f'Bearer {access_token}'}
+            header = {'X-MAL-CLIENT-ID' : f'{APIKey().getKey()[0]}'}
             response : Response = get(url, headers=header)
             object.__setattr__(self, 'raw_data', dict(response.json()))
             response.raise_for_status()

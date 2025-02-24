@@ -15,8 +15,7 @@ KEY_PATH : str = METADATA_PATH + 'key.json'
 # Exception printing color constants
 
 DANGER = 'red'
-WARNING = 'yellow'
-NOTE = 'green'
+WARNING = 'purple'
 
 # Key constants
 
@@ -24,7 +23,7 @@ API_CLIENT_ID_LEN : int = 32
 API_CLIENT_SECRET_LEN : int = 64
 
 # MAL_classes constants
-ANIMELISTNODE_DEFAULT_ATTRIBUTES = [
+ANIME_DEFAULT_ATTRIBUTES = [
     'id', 'title', 'main_picture'
 ]
 ANIMELISTNODE_OPTIONAL_ATTRIBUTES = [
@@ -35,4 +34,15 @@ ANIMELISTNODE_OPTIONAL_ATTRIBUTES = [
     'rating', 'studios'
 ]
 
-ANIMELISTNODE_ATTRIBUTES = ANIMELISTNODE_DEFAULT_ATTRIBUTES + ANIMELISTNODE_OPTIONAL_ATTRIBUTES
+ANIMELISTNODE_ATTRIBUTES = ANIME_DEFAULT_ATTRIBUTES + ANIMELISTNODE_OPTIONAL_ATTRIBUTES
+
+ANIMEDETAILSNODE_OPTIONAL_ATTRIBUTES = [
+    'alternative_titles', 'start_date', 'end_date', 'synopsis', 'mean', 'rank',
+    'popularity', 'num_list_users', 'num_scoring_users', 'nsfw', 'genres',
+    'created_at', 'updated_at', 'media_type', 'status', 'num_episodes', 
+    'start_season', 'broadcast', 'source', 'average_episode_duration',
+    'rating', 'studios', 'pictures', 'background', 'related_anime',
+    'related_manga', 'recommendations', 'statistics'
+]
+
+ANIMEDETAILSNODE_ATTRIBUTES = ANIME_DEFAULT_ATTRIBUTES + ANIMEDETAILSNODE_OPTIONAL_ATTRIBUTES
