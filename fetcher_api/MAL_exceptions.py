@@ -52,6 +52,24 @@ class AnimeListNodeGetAttributeError(Exception) :
     def __str__(self) :
         return f'{self.message}'
 
+class AnimeListGetAttributeError(Exception) :
+    """
+    AnimeListGetAttributeError (exception)
+
+    The attribute being accessed was not queried for this object.
+    
+    Parameters
+    ----------
+    attr : str
+        attribute not within the queried list
+    """
+    def __init__(self, attr : str) :
+        self.message = danger(f'{attr} was not in attributes upon calling getattr')
+        super().__init__(self.message)
+    
+    def __str__(self) :
+        return f'{self.message}'
+
 class InvalidAnimeDetailsAnimeIdError(Exception) :
     """
     InvalidAnimeDetailsAnimeIdError (exception)

@@ -154,9 +154,9 @@ class AnimeDetails :
 
     def __getattribute__(self, attribute : str) :
         # go around the native attributes first
-        x_list = [
-            'raw_node', 'anime_id', 'attributes', '__class__', '__dict__',
-            '__post_init__', 'get_attribute_dict', '__getattribute__'
+        x_list = ['raw_node', 'anime_id', 'attributes', 'get_attribute_dict']
+        x_list = x_list + [
+            method for method in dir(AnimeDetails) if method.startswith("__") and method.endswith("__")
         ]
         if attribute in x_list :
             return super().__getattribute__(attribute)
@@ -280,9 +280,9 @@ class AnimeListNode :
 
     def __getattribute__(self, attribute : str) :
         # go around the native attributes first
-        x_list = [
-            'raw_node', 'attributes', '__class__', '__dict__',
-            '__post_init__', 'get_attribute_dict', '__getattribute__'
+        x_list = ['raw_node', 'attributes', 'get_attribute_dict']
+        x_list = x_list + [
+            method for method in dir(AnimeListNode) if method.startswith("__") and method.endswith("__")
         ]
         if attribute in x_list :
             return super().__getattribute__(attribute)
@@ -291,6 +291,7 @@ class AnimeListNode :
         if attribute not in self.attributes :
             raise AnimeListNodeGetAttributeError(attribute)
         return super().__getattribute__(attribute)
+
     def get_attribute_dict(self) -> dict :
         """
         get_attribute_dict (public method)
@@ -435,3 +436,19 @@ class AnimeList :
         for raw_node in self.raw_data['data'] :
             data_array.append(AnimeListNode(raw_node['node'], self.attributes))
         object.__setattr__(self, 'data', data_array)
+
+    def __getattribute__(self, attribute : str) :
+        # go around the native attributes first
+        x_list = [
+            'q', 'limit', 'offset', 'attributes', 'raw_data', 'data',
+            'paging'
+        ]
+        x_list = x_list + [
+            method for method in dir(AnimeList) if method.startswith("__") and method.endswith("__")
+        ]
+        if attribute in x_list :
+            return super().__getattribute__(attribute)
+        
+        # make a check if the attribute was queried
+        if attribute not in self.attributes :
+            raise AnimeListGetAttributeError(attribute)
