@@ -7,7 +7,7 @@ from traceback import format_exc
 # local imports
 
 from .config import app
-from .search import *
+from .uri_search import *
 
 # home route
 
