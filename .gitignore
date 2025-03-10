@@ -2,7 +2,13 @@
 __pycache__
 
 # Virtual Enviornment Folder
-venv
+.venv
+
+# Enviornment Variables not included
+.env
+
+# Flask Migration folder
+migrations
 
 # API key/token Info Folder
 _api
