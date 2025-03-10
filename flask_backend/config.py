@@ -1,7 +1,15 @@
-from flask import Flask
-from flask_cors import CORS
+# native imports
 
-app = Flask(__name__)
-CORS(app)
+from os import getenv, _exit
 
-app.config['DEBUG'] = True
+class Config :
+    """
+    (class object)
+
+    This is a container to hold all the app configurations necessary for the
+    Flask application.
+    """
+    def __init__(self) :
+        self.SQLALCHEMY_DATABASE_URI : str | None = getenv("DATABASE_URL", None)
+        self.SQLALCHEMY_TRACK_MODIFICATIONS : bool = True
+        self.SECRET_KEY : str | None = getenv("SECRET_KEY", None)
