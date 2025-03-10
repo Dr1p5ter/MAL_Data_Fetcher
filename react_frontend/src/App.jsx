@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react"
-import AnimeCard from "./AnimeCard"
+
 
 function App() {
-  return (
-    <AnimeCard />
-  )
+  return <></>;
 }
 
-export default App
+export default App;
