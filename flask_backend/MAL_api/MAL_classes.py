@@ -115,6 +115,16 @@ class AnimeDetails :
         A summary of recommended anime for those who like this anime.
     statistics : dict
         A rundown of user activity about this anime.
+
+    Raises
+    ------
+    AnimeDetailsGetAttributeError
+        There was an attribute being accessed that was not within the object
+        attributes.
+    HTTPError
+        HTTPError extension for cases where raised response code not being 200.
+    InvalidAnimeDetailsAnimeIdError
+        The anime_id is invalid or not in the correct range.
     """
     # parameters for initialization    
     anime_id                 : int

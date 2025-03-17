@@ -3,6 +3,7 @@
 from bcrypt import gensalt, checkpw, hashpw
 from datetime import datetime, timezone, timedelta
 from os import getenv
+from typing import Any
 from sqlalchemy.orm import validates
 
 # local imports
@@ -16,8 +17,10 @@ class User(BaseModel):
     A model for keeping track of user data and maintaining login information.
     """
     __tablename__ : str = 'users'
-    userid = db.Column(
-        db.Integer, primary_key=True, autoincrement=True
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
     )
     username = db.Column(
         db.String(int(getenv("USER_USERNAME_MAX_LEN"))),
@@ -96,6 +99,10 @@ class User(BaseModel):
         db.DateTime(),
         nullable=True
     )
+
+    def __init__(self, request_json : Any) :
+        for attr in self.__table__.columns.keys() :
+            self.__setattr__(attr, request_json.get(attr, None))
 
     def __repr__(self) -> str :
         return f'<User {self.username}>'

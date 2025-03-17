@@ -9,9 +9,9 @@ from ..models.user import User
 from ._helpers import insert_data_to_session
 
 # blueprint for module access
-users : Blueprint = Blueprint('users', __name__)
+user : Blueprint = Blueprint('user', __name__)
 
-@users.route('/users', methods=['GET'])
+@user.route('/users', methods=['GET'])
 def get_users() -> Response :
     """
     get_users (function)
@@ -25,9 +25,9 @@ def get_users() -> Response :
         user in the database.
     """
     users : list = User.query.all()
-    return jsonify([{"id": user.id, "username": user.username} for user in users])
+    return jsonify([{"id": user.uid, "username": user.username} for user in users])
 
-@users.route('/create_user_profile', methods=['POST'])
+@user.route('/create_user_profile', methods=['POST'])
 def create_user() -> Response :
     """
     create_user (function)
@@ -58,9 +58,7 @@ def create_user() -> Response :
         }), 400
 
     # add the new user information to an object
-    new_user : User = User()
-    for attr in new_user.to_dict().keys() :
-        new_user.__setattr__(attr, request.get_json().get(attr, None))
+    new_user : User = User(request.get_json())
 
     # insert the user into the users table
     return insert_data_to_session(db, new_user)

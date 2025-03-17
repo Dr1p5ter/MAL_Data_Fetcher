@@ -50,8 +50,8 @@ def create_app() -> Flask :
     # begin to go through the registers in the register module
     from . import routes
     app.register_blueprint(routes.csrf)
-    app.register_blueprint(routes.hello)
-    app.register_blueprint(routes.users)
+    app.register_blueprint(routes.user)
+    app.register_blueprint(routes.anime)
 
     # return the configured app
     return app

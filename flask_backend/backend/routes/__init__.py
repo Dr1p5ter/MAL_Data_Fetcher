@@ -5,8 +5,8 @@ from flask import Flask
 # module imports for use elsewhere
 
 from .csrf import csrf
-from .hello import hello
-from .users import users
+from .user import user
+from .anime import anime
 
 
 def register_routes(app : Flask) -> None :
@@ -22,5 +22,5 @@ def register_routes(app : Flask) -> None :
         The Flask object holding the app information.
     """
     app.register_blueprint(csrf, url_prefix="/csrf")
-    app.register_blueprint(hello, url_prefix="/hello")
-    app.register_blueprint(users, url_prefix="/users")
+    app.register_blueprint(user, url_prefix="/user")
+    app.register_blueprint(anime, url_prefix="/anime")

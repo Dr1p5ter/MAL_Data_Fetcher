@@ -12,6 +12,32 @@ from sqlalchemy.exc import (
     OperationalError
 )
 
+def check_if_id_exists(db : SQLAlchemy, model : object, id : int) -> bool :    
+    """
+    check_if_id_exists (function)
+
+    This is a helper function to check if an id exists in the database.
+
+    Parameters
+    ----------
+    db : SQLAlchemy
+        The flask database
+    model : object
+        The model class for the table.
+    id : int
+        The id to check for.
+
+    Returns
+    -------
+    bool
+        True if the id exists, False otherwise.
+    """
+    # check if the id exists in the database
+    if db.session.get(model, id) :
+        return True
+    else :
+        return False
+
 def insert_data_to_session(db : SQLAlchemy, data : object) -> Response :
     """
     insert_data_to_session (function)
